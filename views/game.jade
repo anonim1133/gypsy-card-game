@@ -1,0 +1,21 @@
+html
+	head
+		title!= 'Gypsy Card Game - ' + game.game_name
+		script(src='https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js')
+		script(src='/js/game.js')
+	body
+		h1!= message
+		
+		div
+			p#name Game name: #{game.game_name}
+			p#owner Administrator: #{game.owner_name}
+			p#max_players Max players: #{game.max_players}
+			if game.turn_name
+				p#turn_name Turn: ${game.turn_name}
+			div#join 
+				a(onClick='joinGame(' + game.game_id + ', "' + user_id + '")', href='#joinGame') Join game
+
+		ul#player_list
+			if players
+				each player in players
+					li.player #{player.owner_name}

@@ -1,15 +1,20 @@
 html
 	head
-		title!= title
+		title Gypsy Card Game
 	body
 		h1!= message
     
-		ul#lista_gier
-			li Gra numer jeden
-			li Gra numer dwa
+		ul#game_list
+			if gameList
+				each row in gameList
+					li
+						a(href='/game/' + row.id) #{row.name}
 
-		ul#nowa_gra
-			li
-				input(type="text", placeholder="Nazwa stołu")
-			li
-				button(type="submit", ) Oszukuj!
+		ul#new_game
+			form(action="newGame", method="post")
+				li
+					input(name="tableName", type="text", placeholder="Table name")
+				li
+					input(name="players", type="number", min="2", max="6", placeholder="Players")
+				li
+					button Cheat!

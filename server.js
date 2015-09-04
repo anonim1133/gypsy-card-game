@@ -10,9 +10,12 @@ var bodyParser = require('body-parser')
 var methodOverride = require('method-override')
 var session = require('express-session')
 var util = require("util");
+var db = require("./db");
 
-var config = require("./config");
+global.config = require('./config');
 var app = express();
+
+var game = require('./game');
 
 //app.use(serveStatic('resources'))
 app.set('views', __dirname + '/views');
@@ -22,8 +25,8 @@ app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(methodOverride('X-HTTP-Method-Override'));
 app.use(session({
-    secret: config.SESSION_SECRET,
-    name: config.SESSION_NAME,
+    secret: global.config.SESSION_SECRET,
+    name: global.config.SESSION_NAME,
     //store: sessionStore, // connect-mongo session store
     genid: function(req) {
 		return require('crypto').randomBytes(48).toString('hex'); // use UUIDs for session IDs
@@ -54,9 +57,9 @@ passport.deserializeUser(function(obj, done) {
 //   credentials (in this case, an accessToken, refreshToken, and Google
 //   profile), and invoke a callback with a user object.
 passport.use(new GoogleStrategy({
-    clientID: config.GOOGLE_CLIENT_ID,
-    clientSecret: config.GOOGLE_CLIENT_SECRET,
-    callbackURL: config.GOOGLE_CLIENT_URL
+    clientID: global.config.GOOGLE_CLIENT_ID,
+    clientSecret: global.config.GOOGLE_CLIENT_SECRET,
+    callbackURL: global.config.GOOGLE_CLIENT_URL
   },
   function(accessToken, refreshToken, profile, done) {
     // asynchronous verification, for effect...
@@ -73,24 +76,82 @@ passport.use(new GoogleStrategy({
 
 
 
-
-app.get('/', function (req, res) {
-	if(req.user == undefined){
-		res.redirect('/auth/google')
-	}else{
-		res.render('index', { title: 'Witaj!', message: 'Cześć ' + req.user.displayName });
+//index route
+app.get('/', function (req, res) {	
+	if(req.user == undefined)
+		res.redirect('/auth/google');
+	else{
+		var gameList;
+		
+		game.getList(8, function(rows){
+			res.render('index', {
+				message: 'Cześć ' + req.user.displayName,
+				gameList: rows
+			});
+		});
 	}
 })
 
+//ajax newGame route
+app.post('/newGame', function (req, res) {
+	if(req.user != undefined){
+		game.create(req.body.tableName, req.user.id, req.body.players, function(id){
+			res.redirect('/game/' + id);
+		});
+	}else{ 
+		res.redirect('/auth/google');
+	}
+});
+
+//game view
+app.get('/game/:id', function(req, res){
+	if(req.user == undefined)
+		res.redirect('/auth/google/');
+	else{
+		if(req.params.id != undefined){
+			
+			game.getGame(req.params.id, function(info){
+				var game_info = info[0];
+				
+				info.shift();
+				var players = info;
+				res.render('game', {
+					user_id: req.user.id,
+					game: game_info,
+					players: players
+			})
+		});
+		}
+	}
+});
+
+
+//ajax join game
+app.get('/joinGame/:gid/:uid', function(req, res){
+	if(req.user == undefined)
+		res.redirect('/auth/google/');
+	else{
+		game.join(req.params.gid, req.params.uid);
+		res.send('joined');
+	};
+	
+});
 
 
 
+
+
+
+
+
+//authentication routes
 app.get('/auth/google',
   passport.authenticate('google', { scope: 'https://www.googleapis.com/auth/plus.login' }));
 
 app.get('/auth/google/callback', 
   passport.authenticate('google', { failureRedirect: '/login' }),
   function(req, res) {
+	db.newPlayer(req.user.id, req.user.displayName);
     // Successful authentication, redirect home.
     res.redirect('/');
   });
