@@ -115,10 +115,20 @@ app.get('/game/:id', function(req, res){
 				
 				info.shift();
 				var players = info;
-				res.render('game', {
+				
+				var turn = false;
+				
+				if(req.user.id == game_info.turn_id)
+					turn = true;
+				
+				game.getGameCards(req.params.id, function(cards){
+					res.render('game', {
 					user_id: req.user.id,
 					game: game_info,
-					players: players
+					players: players,
+					cards: cards[0],
+					turn: turn
+				});
 			})
 		});
 		}
@@ -132,11 +142,76 @@ app.get('/joinGame/:gid/:uid', function(req, res){
 		res.redirect('/auth/google/');
 	else{
 		game.join(req.params.gid, req.params.uid);
-		res.send('joined');
+		
+		var user = {
+			uid: req.user.id,
+			uname: req.user.displayName
+		}
+		
+		res.send(user);
 	};
 	
 });
 
+//ajax start game
+app.get('/startGame/:gid', function(req, res){
+	if(req.user == undefined)
+		res.redirect('/auth/google/');
+	else{
+		game.start(req.params.gid, req.user.id);
+		res.send('START');
+	};
+});
+
+//ajax get hand
+app.get('/getHand/:gid', function(req, res){
+	if(req.user == undefined)
+		res.redirect('/auth/google/');
+	else{
+		game.getHand(req.params.gid, req.user.id, function(cards){
+			res.send(cards);
+		});
+		
+	};
+});
+
+
+//ajax play card
+app.get('/playCard/:gid/:cid', function(req, res){
+	if(req.user == undefined)
+		res.redirect('/auth/google/');
+	else{
+		game.playCard(req.params.gid, req.user.id, req.params.cid, function(cards){
+			res.send(cards);
+		});
+		
+	};
+});
+
+//ajax get turn
+app.get('/getTurn/:gid', function(req, res){
+	if(req.user == undefined)
+		res.redirect('/auth/google/');
+	else{
+		game.getTurn(req.params.gid, function(turn){
+			if(turn !== undefined && turn.id == req.user.id)
+				turn.self = true
+			res.send(turn);
+		});
+		
+	};
+});
+
+app.get('/check/:gid', function(req, res){
+	if(req.user == undefined)
+		res.redirect('/auth/google/');
+	else{
+		game.check(req.params.gid, function(value){
+			res.send(value);
+		});
+		
+	};
+});
 
 
 

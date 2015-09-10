@@ -1,0 +1,112 @@
+#boardgame{
+	width: 300px;
+	height: 500px;
+	margin-left: auto;
+	margin-right: auto;
+	position: relative;
+}
+
+/*
+ * clubs - żołądź
+ * diamonds - dzwonek
+ * hearts - czerwień
+ * spades - wino
+ */
+
+
+.card{
+	width: 148px;
+	height: 226px;
+	background: url('/img/cards.jpg') 148px 0px;
+	margin-left: auto;
+	margin-right: auto;
+	position: absolute;
+	top: 134px;
+	padding: 0;
+	list-style-type: none;
+}
+
+.cardHand{
+	width: 64px;
+	height: 226px;
+	background: url('/img/cards.jpg') 148px 0px;
+	padding: 0;
+	list-style-type: none;
+}
+
+#cardsHand{
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	width: 100%;
+}
+
+.clubs{
+	background-position-y: 903px;
+}
+.diamonds{
+	background-position-y: 677px;
+}
+
+.hearts{
+	background-position-y: 452px;
+}
+
+.spades{
+	background-position-y: 226px;
+}
+
+
+._A{
+	background-position-x: 0px;
+}
+
+._2{
+	background-position-x: -148px;
+}
+
+._3{
+	background-position-x: -295px;
+}
+
+._4{
+	background-position-x: -443px;
+}
+
+._5{
+	background-position-x: -591px;
+}
+
+._6{
+	background-position-x: -739px;
+}
+
+._7{
+	background-position-x: -887px;
+}
+
+._8{
+	background-position-x: -1034px;
+}
+
+._9{
+	background-position-x: -1182px;
+}
+
+._10{
+	background-position-x: -1330px;
+}
+
+._J{
+	background-position-x: -1478px;
+}
+
+._Q{
+	background-position-x: -1625px;
+}
+
+._K{
+	background-position-x: -1773px;
+}

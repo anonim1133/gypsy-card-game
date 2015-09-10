@@ -3,6 +3,7 @@ html
 		title!= 'Gypsy Card Game - ' + game.game_name
 		script(src='https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js')
 		script(src='/js/game.js')
+		link(href='/css/game.css', rel='stylesheet')
 	body
 		h1!= message
 		
@@ -11,11 +12,30 @@ html
 			p#owner Administrator: #{game.owner_name}
 			p#max_players Max players: #{game.max_players}
 			if game.turn_name
-				p#turn_name Turn: ${game.turn_name}
-			div#join 
-				a(onClick='joinGame(' + game.game_id + ', "' + user_id + '")', href='#joinGame') Join game
+				p#turn_name Turn: 
+					span #{game.turn_name}
+			if game.active == false
+				div#join 
+					a(onClick='joinGame(' + game.game_id + ', "' + user_id + '")', href='#joinGame') Join game
 
 		ul#player_list
 			if players
 				each player in players
-					li.player #{player.owner_name}
+					li.player(id=player.game_name) #{player.owner_name}
+					
+		div#boardgame
+			if game.owner_id == user_id && game.active == false
+				p#admin
+					a(href="#start" id="start" onClick="startGame(" + game.game_id + ")") Start
+			
+			if game.active == true
+				p#controls
+					if turn == true
+						a(href="#check" id="check" onClick="check()") Check!
+			
+			ul#cardsStack
+				if cards
+					li.card(class="#{cards.card}")
+			
+		ul#cardsHand
+						
